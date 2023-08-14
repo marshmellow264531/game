@@ -16,3 +16,9 @@ const paddle = {
 };
 let rightPressed = false;
 let leftPressed = false;
+
+functiom drawBall() {
+    ctx.beginPath();
+    ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI)
+    
+}
