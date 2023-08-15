@@ -17,8 +17,52 @@ const paddle = {
 let rightPressed = false;
 let leftPressed = false;
 
-functiom drawBall() {
-    ctx.beginPath();
-    ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI)
-    
-}
+   function drawBall() { 
+
+       ctx.beginPath(); 
+
+       ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2); 
+
+       ctx.fillStyle = "#0095DD"; 
+
+       ctx.fill(); 
+
+       ctx.closePath(); 
+
+   } 
+
+  
+
+   function drawPaddle() { 
+
+       ctx.beginPath(); 
+
+       ctx.rect(paddle.x, paddle.y, paddle.width, paddle.height); 
+
+       ctx.fillStyle = "#0095DD"; 
+
+       ctx.fill(); 
+
+       ctx.closePath(); 
+
+   } 
+
+  
+
+   function draw() { 
+
+       ctx.clearRect(0, 0, canvas.width, canvas.height); 
+
+       drawBall(); 
+
+       drawPaddle(); 
+
+       // Update ball and paddle positions here 
+
+       requestAnimationFrame(draw); 
+
+   } 
+
+  
+
+   draw(); 
