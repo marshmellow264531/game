@@ -17,6 +17,7 @@ const paddle = {
 let rightPressed = false;
 let leftPressed = false;
 
+
    function drawBall() { 
 
        ctx.beginPath(); 
@@ -42,7 +43,7 @@ let leftPressed = false;
        ctx.fillStyle = "#0095DD"; 
 
        ctx.fill(); 
-
+       
        ctx.closePath(); 
 
    } 
@@ -57,7 +58,7 @@ let leftPressed = false;
 
        drawPaddle(); 
 
-       // Update ball and paddle positions here 
+      
 
        requestAnimationFrame(draw); 
 
@@ -66,3 +67,88 @@ let leftPressed = false;
   
 
    draw(); 
+   function draw() { 
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height); 
+
+
+
+    ball.x += ball.dx; 
+
+    ball.y += ball.dy; 
+
+
+
+   
+
+    if (ball.x + ball.radius > canvas.width || ball.x - ball.radius < 0) { 
+
+        ball.dx = -ball.dx; 
+
+    } 
+
+
+
+
+
+    if ( 
+
+        ball.y + ball.dy > canvas.height - ball.radius - paddle.height && 
+
+        ball.x > paddle.x && 
+
+        ball.x < paddle.x + paddle.width 
+
+    ) { 
+
+        ball.dy = -ball.dy; 
+
+    } 
+
+
+
+    
+
+    if (ball.y - ball.radius < 0) { 
+
+        ball.dy = -ball.dy; 
+
+    } else if (ball.y + ball.radius > canvas.height) { 
+
+        ball.x = canvas.width / 2; 
+
+        ball.y = canvas.height / 2; 
+
+        ball.dx = 2; 
+
+        ball.dy = -2; 
+
+    } 
+
+
+
+    drawBall(); 
+
+
+
+    if (rightPressed && paddle.x < canvas.width - paddle.width) { 
+
+        paddle.x += 7; 
+
+    } else if (leftPressed && paddle.x > 0) { 
+
+        paddle.x -= 7; 
+
+    }
+
+
+
+    drawPaddle(); 
+
+    requestAnimationFrame(draw); 
+
+} 
+
+
+
+draw(); 
