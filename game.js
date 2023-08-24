@@ -1,5 +1,24 @@
-const canvas  =  document.getElementById('gameCanvas')
-const ctx = canvas.getContext('2D')
+
+const game = {
+    xTurn: true,
+    xState: [],
+    oState: [],
+    winningStates: [
+        // Rows
+        ['0', '1', '2'],
+        ['3', '4', '5'],
+        ['6', '7', '8'],
+
+        // Columns
+        ['0', '3', '6'],
+        ['1', '4', '7'],
+        ['2', '5', '8'],
+
+        // Diagonal
+        ['0', '4', '8'],
+        ['2', '4', '6']
+    ]
+}
 document.addEventListener('click', event => {
     const target = event.target
     const isCell = target.classList.contains('grid-cell')
