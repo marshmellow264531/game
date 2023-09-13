@@ -44,8 +44,7 @@ const ball = {
   dy: -ballSpeed
 };
 
-// check for collision between two objects using axis-aligned bounding box (AABB)
-// @see https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
+
 function collides(obj1, obj2) {
   return obj1.x < obj2.x + obj2.width &&
          obj1.x + obj1.width > obj2.x &&
