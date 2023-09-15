@@ -1,174 +1,291 @@
+const GAME_WIDTH = 800;
+const GAME_HEIGHT = 600;
+const KEY_UP = 38;
+const KEY_DOWN = 40;
+const PADDLE_WIDTH = 10;
+const PADDLE_HEIGHT = 50;
+const BACKGROUND_COLOUR = "blue";
+const PLAYER_COLOUR = "white";
+const COMPUTER_COLOUR = "#FF0000";
+const BALL_COLOUR = "#FFFFFF";
 
 
-const canvas = document.getElementById('game');
-const context = canvas.getContext('2d');
-const grid = 15;
-const paddleHeight = grid * 5; // 80
-const maxPaddleY = canvas.height - grid - paddleHeight;
+// Get the middle y-value to draw the paddle using the relationship between
+// the height of the canvas and the height of the paddle
+const MIDDLE_Y = (GAME_HEIGHT-PADDLE_HEIGHT)/2
 
-var paddleSpeed = 6;
-var ballSpeed = 5;
+/* Entities in the game */
+var player = new Player();
+var computer = new Computer();
+var ball = new Ball(GAME_WIDTH/2, GAME_HEIGHT/2);
 
-const leftPaddle = {
-  // start in the middle of the game on the left side
-  x: grid * 2,
-  y: canvas.height / 2 - paddleHeight / 2,
-  width: grid,
-  height: paddleHeight,
-
-  // paddle velocity
-  dy: 0
-};
-const rightPaddle = {
-  // start in the middle of the game on the right side
-  x: canvas.width - grid * 3,
-  y: canvas.height / 2 - paddleHeight / 2,
-  width: grid,
-  height: paddleHeight,
-
-  // paddle velocity
-  dy: 0
-};
-const ball = {
-  // start in the middle of the game
-  x: canvas.width / 2,
-  y: canvas.height / 2,
-  width: grid,
-  height: grid,
-
-  // keep track of when need to reset the ball position
-  resetting: false,
-
-  // ball velocity (start going to the top-right corner)
-  dx: ballSpeed,
-  dy: -ballSpeed
-};
-
-
-function collides(obj1, obj2) {
-  return obj1.x < obj2.x + obj2.width &&
-         obj1.x + obj1.width > obj2.x &&
-         obj1.y < obj2.y + obj2.height &&
-         obj1.y + obj1.height > obj2.y;
+/* PADDLE */
+function Paddle(x, y, width, height) {
+  this.x = x;
+  this.y = y;
+  this.width = 20;
+  this.height = 100;
+  this.x_speed = 0;
+  this.y_speed = 10;
 }
 
-// game loop
-function loop() {
-  requestAnimationFrame(loop);
-  context.clearRect(0,0,canvas.width,canvas.height);
+Paddle.prototype.render = function(colour) {
+  context.fillStyle = colour;
+  context.fillRect(this.x, this.y, this.width, this.height);
+}
 
-  // move paddles by their velocity
-  leftPaddle.y += leftPaddle.dy;
-  rightPaddle.y += rightPaddle.dy;
-
-  // prevent paddles from going through walls
-  if (leftPaddle.y < grid) {
-    leftPaddle.y = grid;
-  }
-  else if (leftPaddle.y > maxPaddleY) {
-    leftPaddle.y = maxPaddleY;
-  }
-
-  if (rightPaddle.y < grid) {
-    rightPaddle.y = grid;
-  }
-  else if (rightPaddle.y > maxPaddleY) {
-    rightPaddle.y = maxPaddleY;
-  }
-
-  // draw paddles
-  context.fillStyle = 'white';
-  context.fillRect(leftPaddle.x, leftPaddle.y, leftPaddle.width, leftPaddle.height);
-  context.fillRect(rightPaddle.x, rightPaddle.y, rightPaddle.width, rightPaddle.height);
-
-  // move ball by its velocity
-  ball.x += ball.dx;
-  ball.y += ball.dy;
-
-  // prevent ball from going through walls by changing its velocity
-  if (ball.y < grid) {
-    ball.y = grid;
-    ball.dy *= -1;
-  }
-  else if (ball.y + grid > canvas.height - grid) {
-    ball.y = canvas.height - grid * 2;
-    ball.dy *= -1;
-  }
-
-  // reset ball if it goes past paddle (but only if we haven't already done so)
-  if ( (ball.x < 0 || ball.x > canvas.width) && !ball.resetting) {
-    ball.resetting = true;
-
-    // give some time for the player to recover before launching the ball again
-    setTimeout(() => {
-      ball.resetting = false;
-      ball.x = canvas.width / 2;
-      ball.y = canvas.height / 2;
-    }, 400);
-  }
-
-  // check to see if ball collides with paddle. if they do change x velocity
-  if (collides(ball, leftPaddle)) {
-    ball.dx *= -1;
-
-    // move ball next to the paddle otherwise the collision will happen again
-    // in the next frame
-    ball.x = leftPaddle.x + leftPaddle.width;
-  }
-  else if (collides(ball, rightPaddle)) {
-    ball.dx *= -1;
-
-    // move ball next to the paddle otherwise the collision will happen again
-    // in the next frame
-    ball.x = rightPaddle.x - ball.width;
-  }
-
-  // draw ball
-  context.fillRect(ball.x, ball.y, ball.width, ball.height);
-
-  // draw walls
-  context.fillStyle = 'lightgrey';
-  context.fillRect(0, 0, canvas.width, grid);
-  context.fillRect(0, canvas.height - grid, canvas.width, canvas.height);
-
-  // draw dotted line down the middle
-  for (let i = grid; i < canvas.height - grid; i += grid * 2) {
-    context.fillRect(canvas.width / 2 - grid / 2, i, grid, grid);
+Paddle.prototype.move = function(x, y) {
+  this.x += x;
+  this.y += y;
+  this.x_speed = x;
+  this.y_speed = y;
+  if (this.y < 0) {
+    // all the way to the bottom
+    this.y = 0;
+    this.y_speed = 0;
+  } else if (this.y + this.height > GAME_HEIGHT) {
+    // all the way to the top
+    this.y = GAME_HEIGHT - this.height;
+    this.y_speed = 0;
   }
 }
 
-// listen to keyboard events to move the paddles
-document.addEventListener('keydown', function(e) {
+/* BALL */
+function Ball(x, y) {
+  this.x = x;
+  this.y = y;
+  this.x_speed = 3;
+  this.y_speed = 0;
+  this.radius = 5;
+}
 
-  // up arrow key
-  if (e.which === 38) {
-    rightPaddle.dy = -paddleSpeed;
-  }
-  // down arrow key
-  else if (e.which === 40) {
-    rightPaddle.dy = paddleSpeed;
+Ball.prototype.render = function(colour) {
+  context.beginPath();
+  context.arc(this.x, this.y, this.radius, 2 * Math.PI, false);
+  context.fillStyle = colour;
+  context.fill();
+}
+
+Ball.prototype.update = function(paddle1, paddle2) {
+  this.x += this.x_speed;
+  this.y += this.y_speed;
+
+  var top_x = this.x - 5;
+  var top_y = this.y - 5;
+
+  var bottom_x = this.x + 5;
+  var bottom_y = this.y + 5;
+
+  if (this.y - 5 < 0) { // hitting the top wall
+    this.y = 5;
+    this.y_speed = -this.y_speed;
+  } else if (this.y + 5 > GAME_HEIGHT) { // hitting the bottom wall
+    this.y = GAME_HEIGHT-5;
+    this.y_speed = -this.y_speed;
   }
 
-  // w key
-  if (e.which === 87) {
-    leftPaddle.dy = -paddleSpeed;
+  // A point was score, reset the ball
+  if (this.x < 0 || this.x > GAME_WIDTH) {
+    this.x_speed = 3;
+    this.y_speed = 0;
+    this.x = GAME_WIDTH/2;
+    this.y = GAME_HEIGHT/2;
+    paddle1.y = MIDDLE_Y;
+    paddle2.y = MIDDLE_Y;
   }
-  // a key
-  else if (e.which === 83) {
-    leftPaddle.dy = paddleSpeed;
+
+  if (top_x < 300) {
+    if (top_y < (paddle1.y + paddle1.height) && bottom_y > paddle1.y
+      && top_x < (paddle1.x + paddle1.width) && bottom_x > paddle1.x) {
+      // hit the player's paddle
+      this.x_speed = 3;
+      this.y_speed += (paddle1.y_speed / 2);
+      this.x += this.x_speed;
+    }
+  } else {
+    if (top_y < (paddle2.y + paddle2.height) && bottom_y > paddle2.y
+      && top_x < (paddle2.x + paddle2.width) && bottom_x > paddle2.x) {
+      // hit the computer's paddle
+      this.x_speed = -3;
+      this.y_speed += (paddle2.y_speed / 2);
+      this.x += this.x_speed;
+    }
   }
+};
+
+/* PLAYER */
+function Player() {
+  this.paddle = new Paddle(10, MIDDLE_Y, PADDLE_WIDTH, PADDLE_HEIGHT);
+}
+
+Player.prototype.update = function() {
+  for (var key in keysDown) {
+    var value = Number(key);
+
+    if (value == KEY_UP) {
+      this.paddle.move(0, -4);
+    } else if (value == KEY_DOWN) {
+      this.paddle.move(0, 4);
+    } else {
+      this.paddle.move(0, 0);
+    }
+  }
+}
+
+Player.prototype.render = function(colour) {
+  this.paddle.render(colour);
+}
+
+/* COMPUTER */
+function Computer() {
+  this.paddle = new Paddle(GAME_WIDTH-20, MIDDLE_Y, PADDLE_WIDTH, PADDLE_HEIGHT);
+}
+
+Computer.prototype.update = function(ball) {
+  var y_pos = ball.y;
+  var diff = -( (this.paddle.y + (this.paddle.height / 2) ) - y_pos);
+  if (diff < 0  &&  diff < -4) { // max speed left
+    diff = -4;
+  } else if (diff > 0 && diff > 4) { // max speed right
+    diff = 4;
+  }
+
+  this.paddle.move(0, diff);
+
+  if (this.paddle.y < 0) {
+    this.paddle.y = 0;
+  } else if (this.paddle.y + this.paddle.height > 400) {
+    this.paddle.y = 400 - this.paddle.height;
+  }
+}
+
+Computer.prototype.render = function(colour) {
+  this.paddle.render(colour);
+}
+
+// Tell the browser we wish to perform animation
+var animate = window.requestAnimationFrame ||
+  window.webkitRequestAnimationFrame ||
+  window.mozRequestAnimationFrame ||
+  function(callback) { window.setTimeout(callback, 1000/60) };
+
+// Set up a 2D canvas
+var canvas = document.createElement('canvas');
+canvas.width = GAME_WIDTH;
+canvas.height = GAME_HEIGHT;
+var context = canvas.getContext('2d');
+
+// When the page loads, attach the canvas to the screen
+window.onload = function() {
+  document.body.appendChild(canvas);
+  animate(step);
+};
+
+var step = function() {
+  update();       // Update all our objects
+  render();       // Render those objects
+  animate(step);  // Use requestAnimationFrame to call step()
+};
+
+var update = function() {
+  player.update();
+  computer.update(ball);
+  ball.update(player.paddle, computer.paddle);
+};
+
+var render = function() {
+  context.fillStyle = BACKGROUND_COLOUR;
+  context.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+  player.render(PLAYER_COLOUR);
+  computer.render(COMPUTER_COLOUR);
+  ball.render(BALL_COLOUR);
+}
+
+/* CONTROLS */
+var keysDown = {}; // Keep track of which key is pressed
+
+window.addEventListener("keydown", function(event) {
+  keysDown[event.keyCode] = true;
 });
 
-// listen to keyboard events to stop the paddle if key is released
-document.addEventListener('keyup', function(e) {
-  if (e.which === 38 || e.which === 40) {
-    rightPaddle.dy = 0;
-  }
+window.addEventListener("keyup", function(event) {
+  delete keysDown[event.keyCode];
+})
 
-  if (e.which === 83 || e.which === 87) {
-    leftPaddle.dy = 0;
-  }
-});
+function drawScore() { 
 
-// start the game
-requestAnimationFrame(loop);
+  ctx.font = "16px Arial"; 
+
+  ctx.fillStyle = "#0095DD"; 
+
+  ctx.fillText("Score: " + score, 8, 20); 
+
+} 
+if ( 
+
+  ball.y + ball.dy > canvas.height - ball.radius - paddle.height && 
+
+  ball.x > paddle.x && 
+
+  ball.x < paddle.x + paddle.width 
+
+) { 
+
+  ball.dy = -ball.dy; 
+
+  score++; // Increase score when the ball hits the paddle 
+
+} 
+drawBall(); 
+
+  
+
+if ( 
+
+    ball.y + ball.dy > canvas.height - ball.radius - paddle.height && 
+
+    ball.x > paddle.x && 
+
+    ball.x < paddle.x + paddle.width 
+
+) { 
+
+    ball.dy = -ball.dy; 
+
+    score++; 
+
+} 
+
+
+
+drawPaddle(); 
+
+drawScore(); // Call the drawScore function 
+
+requestAnimationFrame(draw); 
+function draw() { 
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height); 
+
+
+
+  ball.x += ball.dx; 
+
+  ball.y += ball.dy; 
+
+
+
+  // Ball collision with walls and paddle... 
+
+
+
+  drawBall(); 
+
+  drawPaddle(); 
+
+  drawScore(); // Call the drawScore function 
+
+  requestAnimationFrame(draw); 
+
+} 
+draw(); // Display initial score 
