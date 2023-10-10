@@ -1,6 +1,12 @@
 canvas {
     border:5px solid #e01b1b;
     background-color: #dacaff ;
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    
 
 }
 h1{
