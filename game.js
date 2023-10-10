@@ -136,7 +136,7 @@ Player.prototype.render = function(colour) {
   this.paddle.render(colour);
 }
 
-/* COMPUTER */
+/* the ai */
 function Computer() {
   this.paddle = new Paddle(GAME_WIDTH-20, MIDDLE_Y, PADDLE_WIDTH, PADDLE_HEIGHT);
 }
@@ -163,7 +163,7 @@ Computer.prototype.render = function(colour) {
   this.paddle.render(colour);
 }
 
-// Tell the browser we wish to perform animation
+// Tell the browser we want to perform animation
 var animate = window.requestAnimationFrame ||
   window.webkitRequestAnimationFrame ||
   window.mozRequestAnimationFrame ||
@@ -182,7 +182,7 @@ window.onload = function() {
 };
 
 var step = function() {
-  update();       // Update all our objects
+  update();       // Update all objects
   render();       // Render those objects
   animate(step);  // Use requestAnimationFrame to call step()
 };
@@ -201,8 +201,8 @@ var render = function() {
   ball.render(BALL_COLOUR);
 }
 
-/* CONTROLS */
-var keysDown = {}; // Keep track of which key is pressed
+/* controls */
+var keysDown = {}; 
 
 window.addEventListener("keydown", function(event) {
   keysDown[event.keyCode] = true;
@@ -275,7 +275,7 @@ function draw() {
 
 
 
-  // Ball collision with walls and paddle... 
+  // Ball collision with walls and paddle
 
 
 
