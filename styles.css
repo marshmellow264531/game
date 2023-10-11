@@ -16,4 +16,13 @@ h1{
 }
 body{
     background-image: url("Snapchat-1209669442.jpg" ) ;
+   
+    height:auto;
+    
+
+    background-repeat:no-repeat ;
+
+    background-attachment: fixed;
+    text-align: center;
+    overflow: hidden;
 }

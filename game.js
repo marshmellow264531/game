@@ -25,7 +25,7 @@ function Paddle(x, y, width, height) {
   this.width = 20;
   this.height = 100;
   this.x_speed = 0;
-  this.y_speed = 100;
+  this.y_speed = 9;
 }
 
 Paddle.prototype.render = function(colour) {
