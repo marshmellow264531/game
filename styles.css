@@ -1,12 +1,12 @@
 canvas {
     border:5px solid #e01b1b;
-    background-color: #dacaff ;
+    
     padding-left: 0;
     padding-right: 0;
     margin-left: auto;
     margin-right: auto;
     display: block;
-    
+    ;
 
 }
 h1{
@@ -15,7 +15,7 @@ h1{
     font-size: 40px;
 }
 body{
-    background-image: url("Snapchat-1209669442.jpg" ) ;
+    background-image: url("Untitled-1.png" ) ;
    
     height:auto;
     
@@ -25,4 +25,8 @@ body{
     background-attachment: fixed;
     text-align: center;
     overflow: hidden;
+}
+p{
+    color:white;
+    
 }

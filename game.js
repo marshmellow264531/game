@@ -10,6 +10,7 @@ const COMPUTER_COLOUR = "#FF0000";
 const BALL_COLOUR = "#FFFFFF";
 
 
+
 // Get the middle y-value to draw the paddle using the relationship between the height of the canvas and the height of the paddle
 const MIDDLE_Y = (GAME_HEIGHT-PADDLE_HEIGHT)/2
 
