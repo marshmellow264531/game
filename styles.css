@@ -18,11 +18,11 @@ body{
     background-image: url("Untitled-1.png" ) ;
    
     height:auto;
-    
+    width:auto;
 
     background-repeat:no-repeat ;
 
-    background-attachment: fixed;
+    
     text-align: center;
     overflow: hidden;
 }
